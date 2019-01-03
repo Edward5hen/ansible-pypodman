@@ -1,0 +1,13 @@
+---
+## This playbook to make remote server open varlink socket
+
+  - name: check varlink socket is opened or not
+    shell: ps aux | grep -i "podman varlink -t" | grep -v grep
+    ignore_errors: yes
+    register: check_socket
+
+  - name: open socket
+    shell: podman varlink -t 0 unix:/run/podman/io.podman
+    when: check_socket.rc != 0
+    async: 10
+    poll: 0

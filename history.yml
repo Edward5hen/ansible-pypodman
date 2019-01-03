@@ -1,0 +1,10 @@
+---
+# This playbook is to test `pypodman history` command
+
+- hosts: remote
+  vars:
+    image_name: fedora
+
+  roles:
+  - setup
+  - pull

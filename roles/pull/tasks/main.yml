@@ -1,0 +1,6 @@
+---
+# This playbook is to pull the container image.
+# Parameter image_name could be defined in the playbook who calls this task
+
+- name: pull the image with podman
+  shell: podman pull
