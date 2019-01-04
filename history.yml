@@ -3,8 +3,47 @@
 
 - hosts: remote
   vars:
-    image_name: fedora
+    image_name: docker.io/library/fedora:23
 
   roles:
   - setup
   - pull
+
+- hosts: host
+  vars:
+    image_name: docker.io/library/fedora:23
+    remote_ip: "{{ groups['remote'][0] }}"
+
+  tasks:
+  - name: check command with no arguments
+    shell: pypodman -l root --host {{ remote_ip }} history {{ image_name }}
+    register: no_arg_rst
+    failed_when: "'ID' not in no_arg_rst.stdout_lines[0] or
+                 'CREATED' not in no_arg_rst.stdout_lines[0] or
+                 'CREATED BY' not in no_arg_rst.stdout_lines[0] or
+                 'SIZE' not in no_arg_rst.stdout_lines[0] or
+                 'COMMENT' not in no_arg_rst.stdout_lines[0]"
+
+  - name: check command with argument --no-trunc
+    shell: pypodman -l root --host {{ remote_ip }} history --no-trunc {{ image_name }}
+    register: no_trunc_rst
+    failed_when: "'60ba3309bebbbebf940bbc61241e9a73ddb060ab724c3802eb86ab665430d7ea' not in no_trunc_rst.stdout_lines[1]"
+
+  - name: check command with argument --human
+    shell: pypodman -l root --host {{ remote_ip }} history --human {{ image_name }}
+    register: human_rst
+    failed_when: "'76.7 MB' not in human_rst.stdout_lines[1]"
+
+  - name: check command with argument --format=table
+    shell: pypodman -l root --host {{ remote_ip }} history --format=table {{ image_name }}
+    register: format_table_rst
+    failed_when: "'ID' not in format_table_rst.stdout_lines[0] or
+                 'CREATED' not in format_table_rst.stdout_lines[0] or
+                 'CREATED BY' not in format_table_rst.stdout_lines[0] or
+                 'SIZE' not in format_table_rst.stdout_lines[0] or
+                 'COMMENT' not in format_table_rst.stdout_lines[0]"
+
+  - name: check command with argument --format=json
+    shell: pypodman -l root --host {{ remote_ip }} history --format=json {{ image_name }}
+    register: format_json_rst
+    failed_when: "'[' not in format_json_rst.stdout_lines[0] or ']' not in format_json_rst.stdout_lines[-1]"

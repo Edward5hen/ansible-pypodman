@@ -11,3 +11,9 @@
     when: check_socket.rc != 0
     async: 10
     poll: 0
+
+  - name: remove all containers
+    shell: podman rm -af
+
+  - name: remove all images
+    shell: podman rmi -af

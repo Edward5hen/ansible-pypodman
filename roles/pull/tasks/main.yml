@@ -3,4 +3,4 @@
 # Parameter image_name could be defined in the playbook who calls this task
 
 - name: pull the image with podman
-  shell: podman pull
+  shell: podman pull {{ image_name }}
